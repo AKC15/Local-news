@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latest News</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        .search-bar input {
+            width: 200px;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-bar button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #3498db;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .sign-up {
+            display: flex;
+            align-items: center;
+        }
+        .sign-up input {
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .sign-up button {
+            padding: 10px 15px;
+            border: none;
+            background-color: #3498db;
+            color: #fff;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .news-article {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        .news-article h2 {
+            margin: 0 0 10px;
+        }
+        .news-article p {
+            margin: 0 0 10px;
+        }
+        .news-article a {
+            text-decoration: none;
+            color: #3498db;
+        }
+        .sidebar {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .genre-select {
+            margin-bottom: 20px;
+        }
+        .pictures-container {
+            margin-top: 20px;
+        }
+        .pictures-container img {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="sign-up">
+                <input type="email" id="email" placeholder="Enter your email">
+                <button onclick="signup()">Sign Up</button>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="search-query" placeholder="Search">
+                <button onclick="fetchNews()">🔍</button>
+            </div>
+        </div>
+        <div class="sidebar">
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('all')">All</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('entertainment')">Entertainment</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('sports')">Sports</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('health')">Health</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('finance')">Finance</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('share market')">Share Market</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('bollywood')">Bollywood</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('actress')">Actress</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchNewsByCategory('international')">International</button>
+            </div>
+            <div class="genre-select">
+                <button onclick="fetchPictures()">Pictures</button>
+            </div>
+        </div>
+        <div class="content">
+            <div id="news-container" class="news-container"></div>
+        </div>
+    </div>
+    <script>
+        async function fetchNews() {
+            const query = document.getElementById('search-query').value;
+            const url = query ? `/api/news?q=${query}` : `/api/news`;
+            const response = await fetch(url);
+            const data = await response.json();
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+            if (data.articles) {
+                data.articles.forEach(article => {
+                    const articleElement = document.createElement('div');
+                    articleElement.classList.add('news-article');
+                    articleElement.innerHTML = `
+                        <h2>${article.title}</h2>
+                        <p>${article.description}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    `;
+                    newsContainer.appendChild(articleElement);
+                });
+            } else {
+                newsContainer.innerHTML = '<p>No news available.</p>';
+            }
+        }
+
+        async function signup() {
+            const email = document.getElementById('email').value;
+            const response = await fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `email=${email}`,
+            });
+            if (response.ok) {
+                alert('Signed up successfully!');
+            } else {
+                alert('Sign up failed.');
+            }
+        }
+
+        async function fetchNewsByCategory(category) {
+            const url = category === 'all' ? `/api/news` : `/api/news?category=${category}`;
+            const response = await fetch(url);
+            const data = await response.json();
+            const newsContainer = document.getElementById('news-container');
+            newsContainer.innerHTML = '';
+            if (data.articles) {
+                data.articles.forEach(article => {
+                    const articleElement = document.createElement('div');
+                    articleElement.classList.add('news-article');
+                    articleElement.innerHTML = `
+                        <h2>${article.title}</h2>
+                        <p>${article.description}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    `;
+                    newsContainer.appendChild(articleElement);
+                });
+            } else {
+                newsContainer.innerHTML = '<p>No news available.</p>';
+            }
+        }
+
+        async function fetchPictures() {
+            const picturesContainer = document.getElementById('pictures-container');
+            picturesContainer.innerHTML = '<p>Loading pictures...</p>';
+            // Replace with your logic to fetch and display pictures
+            picturesContainer.innerHTML = '<p>No pictures available.</p>';
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchNews);
+    </script>
+</body>
+</html>
